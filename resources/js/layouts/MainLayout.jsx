@@ -5,9 +5,11 @@ import NavBar from '../components/NavBar';
 function MainLayout() {
   return (
     <>
-      <NavBar />
-       <Outlet />
-      </>
+      <div className="min-h-screen bg-gray-100 dark:bg-neutral-800">
+        <NavBar />
+        <Outlet />
+      </div>
+    </>
   )
 }
 
