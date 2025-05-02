@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../bootstrap.js";
 
 const AuthContext = createContext();
 
@@ -13,55 +13,41 @@ export const AuthProvider = ({ children }) => {
 
         if (token && storedUser) {
             setUser(JSON.parse(storedUser));
-            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         }
         setLoading(false);
     }, []);
 
     const login = async (email, password) => {
-        const response = await axios.post(
-            "https://spendora.test/api/auth/login",
-            {
-                email,
-                password,
-            }
-        );
+        const response = await axiosInstance.post("/auth/login", {
+            email,
+            password,
+        });
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         setUser(response.data.user);
-        axios.defaults.headers.common[
-            "Authorization"
-        ] = `Bearer ${response.data.token}`;
     };
 
     const register = async (name, email, password, password_confirmation) => {
-        const response = await axios.post(
-            "https://spendora.test/api/auth/register",
-            {
-                name,
-                email,
-                password,
-                password_confirmation,
-            }
-        );
+        const response = await axiosInstance.post("/auth/register", {
+            name,
+            email,
+            password,
+            password_confirmation,
+        });
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
         setUser(response.data.user);
-        axios.defaults.headers.common[
-            "Authorization"
-        ] = `Bearer ${response.data.token}`;
     };
 
     const logout = async () => {
         try {
-            await axios.post("https://spendora.test/api/auth/logout");
+            await axiosInstance.post("/auth/logout");
         } catch (err) {
             console.error("Logout failed:", err);
         }
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
-        delete axios.defaults.headers.common["Authorization"];
     };
 
     return (

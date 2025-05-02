@@ -13,6 +13,7 @@ import { AuthProvider } from "../context/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 import Income from "../pages/Income";
 import Expense from "../pages/Expense";
+import NotFound from "../pages/NotFound";
 
 const App = () => {
     const router = createBrowserRouter(
@@ -25,6 +26,7 @@ const App = () => {
                 </Route>
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
+                <Route path="*" element={<NotFound />} />
             </Route>
         )
     );

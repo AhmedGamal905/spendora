@@ -119,26 +119,29 @@ function NavBar() {
                     </div>
 
                     <div className="hidden lg:flex justify-center items-center gap-x-6">
-                        {!user && (
+                        {!user ? (
                             <NavLink
                                 to="/login"
                                 className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
                             >
-                                Login
+                                Login/Register
                             </NavLink>
+                        ) : (
+                            <>
+                                <a
+                                    href="#"
+                                    className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
+                                >
+                                    Categories
+                                </a>
+                                <a
+                                    href="#"
+                                    className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
+                                >
+                                    Expenses
+                                </a>
+                            </>
                         )}
-                        <a
-                            href="#"
-                            className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
-                        >
-                            Categories
-                        </a>
-                        <a
-                            href="#"
-                            className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
-                        >
-                            Expenses
-                        </a>
                     </div>
 
                     <div className="flex justify-end items-center gap-x-2">
