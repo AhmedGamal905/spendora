@@ -11,9 +11,10 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import { AuthProvider } from "../context/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
-import Income from "../pages/Income";
-import Expense from "../pages/Expense";
+import Expenses from "../pages/Expenses";
 import NotFound from "../pages/NotFound";
+import Categories from "../pages/Categories";
+import Incomes from "../pages/Incomes";
 
 const App = () => {
     const router = createBrowserRouter(
@@ -21,8 +22,9 @@ const App = () => {
             <Route path="/" element={<MainLayout />}>
                 <Route index element={<Home />} />
                 <Route element={<ProtectedRoute />}>
-                    <Route path="income" element={<Income />} />
-                    <Route path="expense" element={<Expense />} />
+                    <Route path="categories" element={<Categories />} />
+                    <Route path="expenses" element={<Expenses />} />
+                    <Route path="incomes" element={<Incomes />} />
                 </Route>
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />

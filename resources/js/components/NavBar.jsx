@@ -128,18 +128,30 @@ function NavBar() {
                             </NavLink>
                         ) : (
                             <>
-                                <a
-                                    href="#"
+                                <NavLink
+                                    to="/"
+                                    className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
+                                >
+                                    Home
+                                </NavLink>
+                                <NavLink
+                                    to="/incomes"
+                                    className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
+                                >
+                                    Incomes
+                                </NavLink>
+                                <NavLink
+                                    to="categories"
                                     className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
                                 >
                                     Categories
-                                </a>
-                                <a
-                                    href="#"
+                                </NavLink>
+                                <NavLink
+                                    to="/expenses"
                                     className="text-sm font-medium text-stone-800 hover:text-green-600 dark:text-neutral-300 dark:hover:text-green-500"
                                 >
                                     Expenses
-                                </a>
+                                </NavLink>
                             </>
                         )}
                     </div>
