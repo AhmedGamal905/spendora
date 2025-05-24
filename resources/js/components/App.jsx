@@ -24,6 +24,10 @@ const App = () => {
                 <Route element={<ProtectedRoute />}>
                     <Route path="categories" element={<Categories />} />
                     <Route path="expenses" element={<Expenses />} />
+                    <Route
+                        path="/categories/:categoryId/expenses"
+                        element={<Expenses />}
+                    />
                     <Route path="incomes" element={<Incomes />} />
                 </Route>
                 <Route path="login" element={<Login />} />

@@ -20,7 +20,7 @@ class CategoriesController extends Controller
 
         $categories = Category::query()
             ->where('user_id', $userId)
-            ->get();
+            ->paginate(10);
 
         return CategoryResource::collection($categories);
     }

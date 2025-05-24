@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { NavLink, useParams } from "react-router-dom";
 import axiosInstance from "../bootstrap";
 import * as yup from "yup";
 import Spinner from "../components/Spinner";
+import LoadMoreButton from "../components/LoadMoreButton";
 
 const expenseSchema = yup.object().shape({
     category_id: yup.string().required("Category is required"),
@@ -18,7 +20,11 @@ const expenseSchema = yup.object().shape({
 });
 
 function Expenses() {
-    const [expenses, setExpenses] = useState([]);
+    const { categoryId } = useParams();
+    const [expenses, setExpenses] = useState({
+        data: [],
+        links: {},
+    });
     const [availableCategories, setAvailableCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,11 +33,10 @@ function Expenses() {
     const [createFormErrors, setCreateFormErrors] = useState({});
     const [updateFormErrors, setUpdateFormErrors] = useState({});
     const [createFormData, setCreateFormData] = useState({
-        category_id: "",
+        category_id: categoryId || "",
         amount: "",
         description: "",
     });
-
     const [updateFormData, setUpdateFormData] = useState({
         id: "",
         category_id: "",
@@ -42,8 +47,14 @@ function Expenses() {
     const fetchExpenses = async () => {
         try {
             setLoading(true);
-            const response = await axiosInstance.get("/expenses");
-            setExpenses(response.data.data || []);
+            const endpoint = categoryId
+                ? `/categories/${categoryId}/expenses`
+                : "/expenses";
+            const response = await axiosInstance.get(endpoint);
+            setExpenses({
+                data: response.data.data || [],
+                links: response.data.links || {},
+            });
         } catch (err) {
             console.error("Error fetching expenses:", err);
             setError("Failed to load expenses. Please try again later.");
@@ -68,7 +79,7 @@ function Expenses() {
     useEffect(() => {
         fetchExpenses();
         fetchCategories();
-    }, []);
+    }, [categoryId]);
 
     const deleteExpense = async (id) => {
         try {
@@ -89,7 +100,7 @@ function Expenses() {
         setCreateFormErrors({});
         if (showCreateForm) {
             setCreateFormData({
-                category_id: "",
+                category_id: categoryId || "",
                 amount: "",
                 description: "",
             });
@@ -148,7 +159,7 @@ function Expenses() {
             setCreate(false);
             setCreateFormErrors({});
             setCreateFormData({
-                category_id: "",
+                category_id: categoryId || "",
                 amount: "",
                 description: "",
             });
@@ -224,35 +235,47 @@ function Expenses() {
             <div className="flex flex-wrap justify-between items-center gap-2 mx-2">
                 <div>
                     <h1 className="text-lg md:text-xl font-semibold text-stone-800 dark:text-neutral-200">
-                        Your Expenses
+                        {categoryId ? `Expenses for Category` : "Your Expenses"}
                     </h1>
                 </div>
-                <div className="flex justify-end items-center gap-x-2">
-                    <button
-                        onClick={toggleCreate}
-                        type="button"
-                        className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                        <svg
-                            className="hidden sm:block shrink-0 size-3.5"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                {categoryId && (
+                    <div className="mx-2 mt-2">
+                        <NavLink
+                            to="/categories"
+                            className="text-blue-600 hover:underline dark:text-blue-400"
                         >
-                            <path d="M5 12h14" />
-                            <path d="M12 5v14" />
-                        </svg>
-                        New Expense
-                    </button>
-                </div>
+                            Back to All Categories
+                        </NavLink>
+                    </div>
+                )}
+                {!categoryId && (
+                    <div className="flex justify-end items-center gap-x-2">
+                        <button
+                            onClick={toggleCreate}
+                            type="button"
+                            className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                            <svg
+                                className="hidden sm:block shrink-0 size-3.5"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M5 12h14" />
+                                <path d="M12 5v14" />
+                            </svg>
+                            New Expense
+                        </button>
+                    </div>
+                )}
             </div>
-            {showCreateForm && (
+            {showCreateForm && !categoryId && (
                 <div>
                     <div>
                         <label
@@ -435,7 +458,7 @@ function Expenses() {
                 </div>
             )}
             <div className="container mx-auto p-4">
-                {expenses.length === 0 ? (
+                {expenses.data.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                         <svg
                             className="w-16 h-16 text-gray-400 mb-4"
@@ -455,7 +478,9 @@ function Expenses() {
                             No expenses records found
                         </p>
                         <p className="text-sm text-gray-500 dark:text-neutral-500">
-                            Add your first expense record to get started.
+                            {categoryId
+                                ? "No expenses found for this category."
+                                : "Add your first expense record to get started."}
                         </p>
                     </div>
                 ) : (
@@ -467,9 +492,6 @@ function Expenses() {
                                         id="hs-pro-id"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Expense ID
                                     </button>
@@ -479,9 +501,6 @@ function Expenses() {
                                         id="hs-pro-name"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Category Name
                                     </button>
@@ -491,9 +510,6 @@ function Expenses() {
                                         id="hs-pro-time"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Amount
                                     </button>
@@ -503,9 +519,6 @@ function Expenses() {
                                         id="hs-pro-description"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Description
                                     </button>
@@ -515,9 +528,6 @@ function Expenses() {
                                         id="hs-pro-added"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Added
                                     </button>
@@ -527,9 +537,6 @@ function Expenses() {
                                         id="hs-pro-update"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Update
                                     </button>
@@ -539,9 +546,6 @@ function Expenses() {
                                         id="hs-pro-delete"
                                         type="button"
                                         className="px-4 py-2.5 text-start w-full flex items-center gap-x-1 text-sm font-normal text-gray-500 focus:outline-none focus:bg-gray-100 dark:text-neutral-500 dark:focus:bg-neutral-700"
-                                        aria-haspopup="menu"
-                                        aria-expanded="false"
-                                        aria-label="Dropdown"
                                     >
                                         Delete
                                     </button>
@@ -549,7 +553,7 @@ function Expenses() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
-                            {expenses.map((expense) => (
+                            {expenses.data.map((expense) => (
                                 <tr
                                     key={expense.id}
                                     className="divide-x divide-gray-200 dark:divide-neutral-700"
@@ -616,6 +620,12 @@ function Expenses() {
                         </tbody>
                     </table>
                 )}
+                <LoadMoreButton
+                    data={expenses}
+                    setData={setExpenses}
+                    links={expenses.links}
+                    axiosInstance={axiosInstance}
+                />
             </div>
         </div>
     );
